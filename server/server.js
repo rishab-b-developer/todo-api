@@ -32,3 +32,7 @@ app.post('/todos', (request, response) => {
             response.status(400).send(err);
         });
 })
+
+module.exports = {
+    app
+}
