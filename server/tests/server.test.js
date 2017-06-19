@@ -21,7 +21,9 @@ const testTodos = [{
     text: 'First test todo'
 }, {
     _id: new ObjectID(),
-    text: 'Second test todo'
+    text: 'Second test todo',
+    completed: true,
+    completedAt: 1234567890
 }];
 
 beforeEach((done) => {
@@ -89,7 +91,7 @@ describe('GET/todos', () => {
             })
             .end(done);
     });
-})
+});
 
 describe('GET/todos/:id', () => {
     it('should return a todo', (done) => {
@@ -114,7 +116,7 @@ describe('GET/todos/:id', () => {
             .expect(400)
             .end(done);
     });
-})
+});
 
 describe('DELETE/todos/:id', () => {
     it('should remove a todo', (done) => {
@@ -150,4 +152,79 @@ describe('DELETE/todos/:id', () => {
             .expect(400)
             .end(done);
     });
-})
+});
+
+describe('PATCH/todos/:id', () => {
+    it('should update a todo', (done) => {
+        var id = testTodos[0]._id.toHexString();
+        var body = {
+            text: 'Test first todo',
+            completed: true
+        };
+
+        request(app).patch(`/todos/${id}`)
+            .send(body)
+            .expect(200)
+            .expect((response) => {
+                expect(response.body.todo).toExist();
+            })
+            .end((error, response) => {
+                if (error) {
+                    return done(error);
+                }
+
+                Todo.findById(id)
+                    .then((todo) => {
+                        expect(todo).toExist();
+                        expect(todo.text).toBe(body.text);
+                        expect(todo.completed).toBe(true);
+                        expect(todo.completedAt).toBeA('number')
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+    });
+
+    it('should clear completedAt in todo if completed is false', (done) => {
+        var id = testTodos[1]._id.toHexString();
+        var body = {
+            text: 'Test second todo',
+            completed: false
+        };
+
+        request(app).patch(`/todos/${id}`)
+            .send(body)
+            .expect(200)
+            .expect((response) => {
+                expect(response.body.todo).toExist();
+            })
+            .end((error, response) => {
+                if (error) {
+                    return done(error);
+                }
+
+                Todo.findById(id)
+                    .then((todo) => {
+                        expect(todo).toExist();
+                        expect(todo.text).toBe(body.text);
+                        expect(todo.completed).toBe(false);
+                        expect(todo.completedAt).toNotExist();
+                        done();
+                    })
+                    .catch((err) => done(err));
+            });
+    });
+
+    it('should return 404 if todo not found', (done) => {
+        var id = new ObjectID().toHexString();
+        request(app).patch(`/todos/${id}`)
+            .expect(404)
+            .end(done);
+    });
+
+    it('should return 400 if invalid todo id', (done) => {
+        request(app).patch('/todos/123')
+            .expect(400)
+            .end(done);
+    });
+});
