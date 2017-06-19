@@ -8,6 +8,9 @@
         "testmon": "nodemon --exec 'npm test'",
         "start": "node server/server.js"
     },
+    "engines": {
+        "node": "6.10.3"
+    },
     "keywords": [
         "TodoApp"
     ],
