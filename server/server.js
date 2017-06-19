@@ -3,13 +3,13 @@ var body_parser = require('body-parser');
 
 var {
     mongoose
-} = require('./db/mongoose')
+} = require('./db/mongoose');
 var {
     Todo
-} = require('./models/todo')
+} = require('./models/todo');
 var {
     User
-} = require('./models/user')
+} = require('./models/user');
 
 
 const serverPort = process.env.PORT || 3000;
