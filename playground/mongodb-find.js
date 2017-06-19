@@ -20,7 +20,9 @@ MongoClient.connect('mongodb://localhost:27017/TodoApp', (err, db) => {
              console.log('Unable to fetch documents:', JSON.stringify(err, undefined, 4));
          });*/
     db.collection('Users')
-        .find({ name: 'Rishab Bokaria' })
+        .find({
+            name: 'Rishab Bokaria'
+        })
         .toArray()
         .then((docs) => {
             console.log('Users');
