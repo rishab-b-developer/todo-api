@@ -1,31 +1,32 @@
 {
-    "name": "todo-api",
-    "version": "1.0.0",
-    "description": "TodoApp",
-    "main": "server/server.js",
-    "scripts": {
-        "test": "mocha server/**/*.test.js",
-        "testmon": "nodemon --exec 'npm test'",
-        "start": "node server/server.js"
-    },
-    "engines": {
-        "node": "6.10.3"
-    },
-    "keywords": [
-        "TodoApp"
-    ],
-    "author": "Rishab Bokaria",
-    "license": "ISC",
-    "dependencies": {
-        "body-parser": "^1.15.2",
-        "express": "^4.14.0",
-        "mongodb": "^2.2.5",
-        "mongoose": "^4.5.9"
-    },
-    "devDependencies": {
-        "expect": "^1.20.2",
-        "mocha": "^3.4.2",
-        "nodemon": "^1.11.0",
-        "supertest": "^2.0.1"
-    }
+  "name": "todo-api",
+  "version": "1.0.0",
+  "description": "TodoApp",
+  "main": "server/server.js",
+  "scripts": {
+    "test": "mocha server/**/*.test.js",
+    "testmon": "nodemon --exec 'npm test'",
+    "start": "node server/server.js"
+  },
+  "engines": {
+    "node": "6.10.3"
+  },
+  "keywords": [
+    "TodoApp"
+  ],
+  "author": "Rishab Bokaria",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "lodash": "^4.15.0",
+    "mongodb": "^2.2.5",
+    "mongoose": "^4.5.9"
+  },
+  "devDependencies": {
+    "expect": "^1.20.2",
+    "mocha": "^3.4.2",
+    "nodemon": "^1.11.0",
+    "supertest": "^2.0.1"
+  }
 }

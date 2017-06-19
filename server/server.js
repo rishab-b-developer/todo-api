@@ -1,8 +1,9 @@
 const {
     ObjectID
 } = require('mongodb');
-var express = require('express');
-var body_parser = require('body-parser');
+const _ = require('lodash');
+const express = require('express');
+const body_parser = require('body-parser');
 
 var {
     mongoose
@@ -79,6 +80,43 @@ app.delete('/todos/:id', (request, response) => {
     var id = request.params.id;
     if (ObjectID.isValid(id)) {
         Todo.findByIdAndRemove(id)
+            .then((todo) => {
+                if (todo) {
+                    response.send({
+                        todo
+                    });
+                } else {
+                    handleDataNotFoundError({
+                        message: "Id not found",
+                        name: "Todo not found"
+                    }, response);
+                }
+            }, (err) => handleDataNotFoundError(err, response));
+    } else {
+        handleInvalidInputError({
+            message: "Invalid id",
+            name: "CastError"
+        }, response);
+    }
+});
+
+app.patch('/todos/:id', (request, response) => {
+    var id = request.params.id;
+    var body = _.pick(request.body, ['text', 'completed']);
+
+    if (ObjectID.isValid(id)) {
+        if (_.isBoolean(body.completed) && body.completed) {
+            body.completedAt = new Date().getTime();
+        } else {
+            body.completed = false;
+            body.completedAt = null;
+        }
+
+        Todo.findByIdAndUpdate(id, {
+                $set: body
+            }, {
+                new: true
+            })
             .then((todo) => {
                 if (todo) {
                     response.send({
