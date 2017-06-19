@@ -69,11 +69,36 @@ app.get('/todos/:id', (request, response) => {
             }, (err) => handleDataNotFoundError(err, response));
     } else {
         handleInvalidInputError({
-            message: "Id validation failed",
+            message: "Invalid id",
             name: "CastError"
         }, response);
     }
 });
+
+app.delete('/todos/:id', (request, response) => {
+    var id = request.params.id;
+    if (ObjectID.isValid(id)) {
+        Todo.findByIdAndRemove(id)
+            .then((todo) => {
+                if (todo) {
+                    response.send({
+                        todo
+                    });
+                } else {
+                    handleDataNotFoundError({
+                        message: "Id not found",
+                        name: "Todo not found"
+                    }, response);
+                }
+            }, (err) => handleDataNotFoundError(err, response));
+    } else {
+        handleInvalidInputError({
+            message: "Invalid id",
+            name: "CastError"
+        }, response);
+    }
+});
+
 
 module.exports = {
     app
