@@ -13,26 +13,15 @@ const {
 const {
     User
 } = require('./../models/user');
+const {
+    testUsers,
+    testTodos,
+    testPopulateUsers,
+    testPopulateTodos
+} = require('./seed/seed');
 
-
-
-const testTodos = [{
-    _id: new ObjectID(),
-    text: 'First test todo'
-}, {
-    _id: new ObjectID(),
-    text: 'Second test todo',
-    completed: true,
-    completedAt: 1234567890
-}];
-
-beforeEach((done) => {
-    Todo.remove({})
-        .then(() => {
-            return Todo.insertMany(testTodos);
-        })
-        .then(() => done());
-});
+beforeEach(testPopulateUsers);
+beforeEach(testPopulateTodos);
 
 describe('POST/todos', () => {
     it('should create a new todo', (done) => {
@@ -225,6 +214,101 @@ describe('PATCH/todos/:id', () => {
     it('should return 400 if invalid todo id', (done) => {
         request(app).patch('/todos/123')
             .expect(400)
+            .end(done);
+    });
+});
+
+describe('GET/users/me', () => {
+    it('should return user if authenticated', (done) => {
+        request(app).get('/users/me')
+            .set('x-auth', testUsers[0].tokens[0].token)
+            .expect(200)
+            .expect((response) => {
+                expect(response.body._id).toBe(testUsers[0]._id.toHexString());
+                expect(response.body.email).toBe(testUsers[0].email);
+            })
+            .end(done);
+    });
+
+    it('should return 401 if not authenticated', (done) => {
+        request(app).get('/users/me')
+            .expect(401)
+            .expect((response) => {
+                expect(response.body.error).toExist();
+            })
+            .end(done);
+    });
+
+});
+
+describe('POST/users', () => {
+    it('should create a user', (done) => {
+        var email = 'rishab.bokaria@ril.com';
+        var password = 'fdsa4321';
+        var name = 'Rishab Bokaria';
+
+        request(app).post('/users')
+            .send({
+                email,
+                password,
+                name
+            })
+            .expect(200)
+            .expect((response) => {
+                expect(response.headers['x-auth']).toExist();
+                expect(response.body._id).toExist();
+                expect(response.body.email).toBe(email);
+                expect(response.body.name).toBe(name);
+            })
+            .end((err) => {
+                if (err) {
+                    return done();
+                }
+                User.findOne({
+                    email
+                }).then((user) => {
+                    expect(user).toExist();
+                    expect(user.password).toNotBe(password);
+                    done();
+                })
+            });
+    });
+
+    it('should not create a user if email already in use', (done) => {
+        var email = testUsers[0].email;
+        var password = 'fdsa4321';
+        var name = 'Rishab Bokaria';
+
+        request(app).post('/users')
+            .send({
+                email,
+                password,
+                name
+            })
+            .expect(400)
+            .expect((response) => {
+                expect(response.body.code).toBe(11000);
+            })
+            .end(done);
+    });
+
+    it('should return validation errors if incorrect data', (done) => {
+        var email = 'rishab-sis.com';
+        var password = 'pass231';
+        var name = '';
+
+        request(app).post('/users')
+            .send({
+                email,
+                password,
+                name
+            })
+            .expect(400)
+            .expect((response) => {
+                expect(response.body.errors.email).toExist();
+                expect(response.body.errors.password).toExist();
+                expect(response.body.errors.name).toExist();
+            })
             .end(done);
     });
 });
