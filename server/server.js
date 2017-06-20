@@ -30,12 +30,12 @@ app.listen(serverPort, () => {
     console.log(`Server started listening on port ${serverPort}.`);
 });
 
-var handleInvalidInputError = (error, response) => {
+var sendBadReuestError = (error, response) => {
     response.status(400)
         .send(error);
 };
 
-var handleDataNotFoundError = (error, response) => {
+var sendFileNotFoundError = (error, response) => {
     response.status(404)
         .send(error);
 };
@@ -51,7 +51,7 @@ app.post('/users', (request, response) => {
             response.header('x-auth', token)
                 .send(user);
         })
-        .catch((err) => handleInvalidInputError(err, response));
+        .catch((err) => sendBadReuestError(err, response));
 });
 
 app.post('/users/login', (request, response) => {
@@ -63,7 +63,17 @@ app.post('/users/login', (request, response) => {
                     .send(user);
             });
         })
-        .catch((err) => handleInvalidInputError(err, response));
+        .catch((err) => sendBadReuestError(err, response));
+});
+
+app.delete('/users/me/token', authenticate, (request, response) => {
+    request.user.removeToken(request.token)
+        .then(() => {
+            response.status(200)
+                .send();
+        }, () => {
+            sendBadReuestError({}, response);
+        });
 });
 
 app.get('/users/me', authenticate, (request, response) => {
@@ -76,7 +86,7 @@ app.post('/todos', (request, response) => {
     todo.save()
         .then((todo) => {
             response.send(todo);
-        }, (err) => handleInvalidInputError(err, response));
+        }, (err) => sendBadReuestError(err, response));
 });
 
 app.get('/todos', (request, response) => {
@@ -85,7 +95,7 @@ app.get('/todos', (request, response) => {
             response.send({
                 todos
             });
-        }, (err) => handleDataNotFoundError(err, response));
+        }, (err) => sendFileNotFoundError(err, response));
 });
 
 app.get('/todos/:id', (request, response) => {
@@ -98,14 +108,14 @@ app.get('/todos/:id', (request, response) => {
                         todo
                     });
                 } else {
-                    handleDataNotFoundError({
+                    sendFileNotFoundError({
                         message: "Id not found",
                         name: "Todo not found"
                     }, response);
                 }
-            }, (err) => handleDataNotFoundError(err, response));
+            }, (err) => sendFileNotFoundError(err, response));
     } else {
-        handleInvalidInputError({
+        sendBadReuestError({
             message: "Invalid id",
             name: "CastError"
         }, response);
@@ -122,14 +132,14 @@ app.delete('/todos/:id', (request, response) => {
                         todo
                     });
                 } else {
-                    handleDataNotFoundError({
+                    sendFileNotFoundError({
                         message: "Id not found",
                         name: "Todo not found"
                     }, response);
                 }
-            }, (err) => handleDataNotFoundError(err, response));
+            }, (err) => sendFileNotFoundError(err, response));
     } else {
-        handleInvalidInputError({
+        sendBadReuestError({
             message: "Invalid id",
             name: "CastError"
         }, response);
@@ -159,14 +169,14 @@ app.patch('/todos/:id', (request, response) => {
                         todo
                     });
                 } else {
-                    handleDataNotFoundError({
+                    sendFileNotFoundError({
                         message: "Id not found",
                         name: "Todo not found"
                     }, response);
                 }
-            }, (err) => handleDataNotFoundError(err, response));
+            }, (err) => sendFileNotFoundError(err, response));
     } else {
-        handleInvalidInputError({
+        sendBadReuestError({
             message: "Invalid id",
             name: "CastError"
         }, response);
