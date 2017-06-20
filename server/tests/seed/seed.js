@@ -10,7 +10,7 @@ const {
     User
 } = require('./../../models/user');
 
-const secret = '$#@*SHA-256*@#$';
+const secret = process.env.JWT_SECRET;
 
 const userOneId = new ObjectID();
 const userTwoId = new ObjectID();
