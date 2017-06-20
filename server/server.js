@@ -16,6 +16,10 @@ var {
 var {
     User
 } = require('./models/user');
+var {
+    authenticate
+} = require('./middleware/authenticate');
+
 
 const serverPort = process.env.PORT;
 
@@ -48,6 +52,10 @@ app.post('/users', (request, response) => {
                 .send(user);
         })
         .catch((err) => handleInvalidInputError(err, response));
+});
+
+app.get('/users/me', authenticate, (request, response) => {
+    response.send(request.user);
 });
 
 app.post('/todos', (request, response) => {
