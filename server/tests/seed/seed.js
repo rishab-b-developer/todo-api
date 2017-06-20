@@ -32,17 +32,26 @@ const testUsers = [{
     _id: userTwoId,
     email: 'rishika.jain@in.com',
     name: 'Rishika Jain',
-    password: '4321fdsa'
+    password: '4321fdsa',
+    tokens: [{
+        access,
+        token: jwt.sign({
+            _id: userTwoId.toHexString(),
+            access
+        }, secret).toString()
+    }]
 }];
 
 const testTodos = [{
     _id: new ObjectID(),
-    text: 'First test todo'
+    text: 'First test todo',
+    _creator: userOneId
 }, {
     _id: new ObjectID(),
     text: 'Second test todo',
     completed: true,
-    completedAt: 1234567890
+    completedAt: 1234567890,
+    _creator: userTwoId
 }];
 
 const testPopulateUsers = (done) => {
