@@ -17,7 +17,6 @@ var {
     User
 } = require('./models/user');
 
-
 const serverPort = process.env.PORT;
 
 var app = express();
@@ -28,20 +27,35 @@ app.listen(serverPort, () => {
 });
 
 var handleInvalidInputError = (error, response) => {
-    response.status(400).send(error);
+    response.status(400)
+        .send(error);
 };
 
 var handleDataNotFoundError = (error, response) => {
-    response.status(404).send(error);
+    response.status(404)
+        .send(error);
 };
 
+app.post('/users', (request, response) => {
+    var body = _.pick(request.body, ['email', 'password', 'name']);
+    var user = new User(body);
+    user.save()
+        .then(() => {
+            return user.generateAuthToken();
+        })
+        .then((token) => {
+            response.header('x-auth', token)
+                .send(user);
+        })
+        .catch((err) => handleInvalidInputError(err, response));
+});
+
 app.post('/todos', (request, response) => {
-    var todo = new Todo({
-        text: request.body.text
-    });
+    var body = _.pick(request.body, ['text']);
+    var todo = new Todo(body);
     todo.save()
-        .then((doc) => {
-            response.send(doc);
+        .then((todo) => {
+            response.send(todo);
         }, (err) => handleInvalidInputError(err, response));
 });
 
